@@ -2,6 +2,7 @@ import express from "express"
 import { body,validationResult } from "express-validator"
 import usermodel from "../models/user.model.js";
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 const router=express.Router();
 
 // router.get('/test',(req,res)=>{
@@ -75,9 +76,20 @@ router.post('/login',
                 message: "username or password is incorrect"
             })
         }
-        res.json({
-            message: "Logged in"
-        })
+        // res.json({
+        //     message: "Logged in"
+        // })
+
+        const token=jwt.sign({
+            userid: user._id,
+            email: user.email,
+            username: user.username
+        },
+        process.env.JWT_SECRET,
+    )
+    res.json({
+        token
+    })
 })
 
 export default router
