@@ -42,5 +42,43 @@ router.post('/register',
     // console.log(newuser)
 })
 
+router.get("/login",(req,res)=>{
+    res.render('login')
+})
+
+router.post('/login',
+    body('password').trim().isLength({min: 5}),
+    body('username').trim().isLength({min: 3}),
+    async (req,res)=>{
+       const errors=validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errors: errors.array(),
+                message: 'Invalid data'
+            })
+        }
+        const {username,password}=req.body
+
+        const user=await usermodel.findOne({
+            username: username
+        })
+
+        if(!user){
+            return res.status(400).json({
+                message: "username or password is incorrect"
+            })
+        }
+
+        const ismatch=await bcrypt.compare(password,user.password)
+        if(!ismatch){
+            return res.status(400).json({
+                message: "username or password is incorrect"
+            })
+        }
+        res.json({
+            message: "Logged in"
+        })
+})
+
 export default router
 
